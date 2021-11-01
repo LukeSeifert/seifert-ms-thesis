@@ -18,7 +18,7 @@ Use Serpent2 build-in flows and binary restarts to create "piping" where materia
   - [ ] Batchwise removal methods in Serpent2
   - [ ] SaltProc
   - [ ] MSBR
-- [ ] Discussion / Methods
+- [ ] Methods
 - [ ] Results
 - [ ] Conclusions
 
@@ -30,6 +30,7 @@ Use Serpent2 build-in flows and binary restarts to create "piping" where materia
 - [ ] Type 1 cycle-time-decay approximation
 - [ ] Type 1 linear generation approximation
 - [ ] Type 2 different approaches and non-physicality
+- [ ] Discussion of when each type could be used (pros/cons)
 
 
 ## Results to be Generated
@@ -44,6 +45,7 @@ Use Serpent2 build-in flows and binary restarts to create "piping" where materia
   - [ ] DNP groups SS locations
   - [ ] Difference in neutronic parameters
   - [ ] Mesh refinement analysis (cost vs accuracy)
+  - [ ] Analysis of separate parts of the core
 
 
 ## Possible Things to Add
