@@ -3,7 +3,6 @@
 \setcounter{secnumdepth}{5}
 \newcommand{\minus}{\scalebox{0.65}[1.0]{$-$}}
 
-
 \section{Molten Salt Reactors}
 
 Modeling and simulation of liquid fueled molten salt reactors (MSRs) differs from solid fueled reactors in two main areas. The first is in the fresh fuel feed and fission product removal streams used during operation in MSRs, called online reprocessing. Modeling an MSR without online reprocessing will cause very different results during depletion calculations due to the lack of fresh fuel and buildup of fission products. In order to simulate this reprocessing functionality, software can either use batchwise reprocessing or continuous reprocessing.
@@ -11,7 +10,7 @@ Modeling and simulation of liquid fueled molten salt reactors (MSRs) differs fro
 The second difference is in the movement of the fuel salt, which causes delayed neutron precursors (DNPs) to move in the core. Because the DNPs have different decay times before the delayed neutrons are born, the effect of the fuel movement on each group varies. However, the overall result is more delayed neutrons in less important regions, such as external piping, which means there is a reduced effective delayed neutron fraction in the core.
 %Modeling and simulation of liquid fueled molten salt reactors (MSRs) is different from modeling and simulation of solid fueled reactors in a few different areas. Two main areas of particular importance are the online reprocessing functionality and the movement of the fuel through the reactor. The online reprocessing functionality involves removing fission products from the fuel and adding fresh fuel during operation. The movement of the fuel causes a shift in the location of delayed neutron precursors (DNPs). In solid fueled reactors, the distribution of DNPs follows the flux profile, while in MSRs the DNPs move along with the fuel. This results in a reduction in the effective delayed neutron fraction due to decay of DNPs in less important regions.
 
-\section{Online Reprocessing}
+\subsection{Online Reprocessing}
 
 The online reprocessing functionality of MSRs is simulated in different ways depending on the particular software used, and depending on the methods employed by that software. The two main ways to approach the online reprocessing problem is by either using batch-wise reprocessing or continuous reprocessing. There are also different approaches in terms of modeling the full core and using a unit-cell model. 
 
@@ -24,7 +23,7 @@ Codes such as Serpent2 and newer versions of ChemTriton implement continuous rep
 
 Another aspect of online reprocessing that must be considered is mass balancing. For batchwise reprocessing, mass balancing can be solved in several different ways. One method is to have the net mass of the feed rate over some depletion step be equivalent to the mass removed over that same depletion step, which is the current approach used by SaltProc \cite{rykhlevskii_modeling_2019}. Alternatively, the volume of the system can be adjusted so that constant density is maintained in order to keep cross section data consistent \cite{ridley_method_2017}. Another approach is to move excess fuel salt into a bleed-off tank \cite{ridley_method_2017}. For continuous reprocessing, the depletion time steps can be much larger. This means that during the interval between steps, the mass will not be balanced. However, the same batchwise methods can be used with continuous reprocessing at new depletion steps. Implementing these approaches increases computational cost when performed in Serpent2. This is because using a single input script with depletion steps will cause each depeletion step to be run once, but altering the input script by changing volumes or removing mass to a bleed-off tank will cause the time step to be run twice.
 
-\subsection{Batchwise Reprocessing}
+\subsubsection{Batchwise Reprocessing}
 
 %Imagine a process exists in which $X$\% of some element is removed from the fuel salt in the system over some time period T. For a batchwise approach, a straightforward approach would be to run the system, deplete for some time step $\tau$, remove $\gamma$\%, and repeat. The scaling term $\gamma$ for the removal efficiency is a linear approximation of the removal efficiency based on the time step adjustment and can be seen in Equation \ref{eq:batchwise_rem_eff}. An alternative approach is to establish a depletion time step $\tau$ such that the efficiency based time value $T$ is a multiple of $\tau$ and only have the batchwise removal occur at the steps when $\tau$ is a multiple of $T$. 
 
@@ -39,7 +38,7 @@ An alternative approach is to establish a depletion time step $\tau$ such that t
 \gamma = X \frac{\tau}{T}
 \hfill\label{eq:batchwise_rem_eff} \end{equation}
 
-For the Molten Salt Breeder Reactor (MSBR), SaltProc performs batchwise reprocessing every 3 days using a linear approximation of the cycle times given by Robertson in the ORNL report \cite{robertson_conceptual_1971, rykhlevskii_modeling_2019}. The xenon and krypton removals in SaltProc use a gas separation system equation, while the protactinium uses a modeled liquid-liquid reductive extraction process. These efficiencies differ from the cycle time values, causing slight differences in those terms. The MSBR also has two varying feed inputs of \ce{^{232}Th} and \ce{^{233}U}.
+For the Molten Salt Breeder Reactor (MSBR), SaltProc performs batchwise reprocessing every 3 days using a linear approximation of the cycle times given by Robertson et al in the ORNL report \cite{robertson_conceptual_1971, rykhlevskii_modeling_2019}. The xenon and krypton removals in SaltProc use a gas separation system equation, while the protactinium uses a modeled liquid-liquid reductive extraction process. These efficiencies differ from the cycle time values, causing slight differences in those terms. The MSBR also has two varying feed inputs of \ce{^{232}Th} and \ce{^{233}U}.
 
 Examples of the batchwise method used in SaltProc can be seen in Equations \eqref{eq:SP_20s} and \eqref{eq:SP_60d}. Both examples show what the resulting mass removal per step, or $\gamma$, term should be for different cycle time values. The first shows a cycle time of 20s, which is shorter than the step time of 3 days. This results in a removal rate over 100\%, which is set to 100\%. The second shows a cycle time of 60 days, longer than the step size. This results in a 5\% removal per step. An alternative approach to the second example, which is implemented in the earlier versions of SaltProc, is to perform no removal until 60 days have elapsed and then remove 100\% of material.
 
@@ -51,7 +50,7 @@ X = 100\%, T = 20 s, \tau = 3 d \rightarrow \gamma > 100\% \rightarrow 100\%
 X = 100\%, T = 60 d, \tau = 3 d \rightarrow \gamma = 5\%
 \hfill\label{eq:SP_60d} \end{equation}
 
-\subsection{Continuous Reprocessing}
+\subsubsection{Continuous Reprocessing}
 
 %For a continuous approach, removing some fraction is dependent upon the particular isotope since the approach involves adding a term to the Bateman equation. This is one of the methods used in Serpent2 continuous reprocessing, where separations are only performed based on the element, not each particular isotope, an extension developed by Aufiero et al \cite{aufiero_extended_2013}. Equation \ref{eq:Bateman_default} shows the generic form of the Bateman equation, while Equation \ref{eq:Bateman_type_one_decay} shows the terms added to Equation \ref{eq:Bateman_default}, which are the reprocessing constants, or $\lambda_{r}$ added. 
 The continuous approach manipulates the Bateman equation by adding a reprocessing term, which contains a reprocessing constant and the concentration of the isotope. This is one of the methods used in Serpent2 continuous reprocessing, an extension developed by Aufiero et al \cite{aufiero_extended_2013}. Equation (\ref{eq:Bateman_default}) shows the generic form of the Bateman equation, while Equation (\ref{eq:Bateman_type_one_decay}) shows the terms added to Equation (\ref{eq:Bateman_default}), which are the reprocessing constants, $\lambda_{r}$. These terms represent removal of the current isotope as well as feed of the current isotope from other sources.
@@ -189,7 +188,7 @@ The second continuous reprocessing setting used in Serpent2 removes a constant v
 \frac{dN_j}{dt} = \sum_{i \neq j} \left [ \left( \gamma_{i \rightarrow j} \sigma_{f, i} \Phi + \lambda _{i \rightarrow j} + \sigma_{i \rightarrow j} \Phi \right) N_i \right ] - \left ( \lambda_j + \sigma_j \Phi \right ) N_j - C
 \hfill\label{eq:Bateman_diff_second_example} \end{equation}
 
-This approach has flaws which can be directly demonstrated through an example. Imagine an element exists with two isotopes $A$ and $B$. There is a removal rate of 10\% per second defined for the element. A batchwise process could remove 10\% of each isotopes relative abundance after a second by using a one second time step, which is physical in terms of fractional removal. This can be seen directly in Table \ref{tab:cont_repr_appr}, where 10\% of both isotopes and the net count are removed.
+This approach has a flaw which can be directly demonstrated through an example if the reprocessing constants are defined for an element and not for each isotope. Imagine an element exists with two isotopes $A$ and $B$. There is a removal rate of 10\% per second defined for the element. A batchwise process could remove 10\% of each isotopes relative abundance after a second by using a one second time step, which is physical in terms of fractional removal. This can be seen directly in Table \ref{tab:cont_repr_appr}, where 10\% of both isotopes and the net count are removed.
 
 \begin{table}[ht]
 \renewcommand{\arraystretch}{1.25}
@@ -218,7 +217,8 @@ For the continuous reprocessing, the first attempt might be to try and remove 10
 
 \subsection{DNP Movement}
 
-The movement of DNPs in liquid fueled molten salt reactors impacts the operation of the reactor directly by reducing the number of neutrons which are present in the important regions of the reactor \cite{wooten_review_2018}. In a solid fueled reactor, the flux and the concentration of delayed neutron precursors have the same profile. However, a moving fluid fuel causes the precursors to have a shifted profile based on the fluid flow rate, mixing, and decay rate of the precursors. This was shown very clearly by Jun Shi and Massimiliano Fratoni in their work, which can be seen in Figure \ref{fig:genfoam_dnp_locations}.
+The movement of DNPs in liquid fueled molten salt reactors impacts the operation of the reactor directly since the decay of the precursors occurs at a different location compared to a static reactor \cite{wooten_review_2018, aufiero_calculating_2014}. There are several effects which this movement can have on the reactor. Since the delayed neutron precursors move, there is a probability of decay in non-core regions of the reactor, meaning there are fewer delayed neutrons in the core. This results in a reduced effective delayed neutron fraction, which reduces controllability of the reactor. Additionally, since delayed neutrons have a softer spectrum than prompt neutrons, there is a difference in spectrum in a reactor which has no flow against a reactor which has a circulating fuel.
+In a solid fueled reactor, the flux and the concentration of delayed neutron precursors have the same profile. However, a moving fluid fuel causes the precursors to have a shifted profile based on the fluid flow rate, mixing, and decay rate of the precursors. This was shown very clearly by Jun Shi and Massimiliano Fratoni in their work, which can be seen in Figure \ref{fig:genfoam_dnp_locations}.
 
 \begin{figure}[H]
   \centering
@@ -229,7 +229,7 @@ The movement of DNPs in liquid fueled molten salt reactors impacts the operation
    \label{fig:genfoam_dnp_locations}
 \end{figure}
 
-From these images, it can be seen that for the long shortest lived DNPs, the movement of the fuel does not have any significant impact upon the DNP distribution when compared to static fuel. This is reasonable since the precursors do not live for very long in this group, so they do not have much chance to travel. For the intermediate DNP group, there is a clear shift in the direction of the fuel flow, which causes more precursors to produce delayed neutrons in the less important piping  and upper plenum regions. The longest lived DNP group seems to be spread almost equally throughout the entire reactor, which means that those delayed neutrons are contributing significantly less to the overall neutron economy. Additionally, this reduces the overall effective delayed neutron fraction since the delayed neutrons are in less important regions. This directly affects the controllability of the reactor through the reactor period, which is heavily dependent upon the delayed neutrons.
+From these images, it can be seen that for the long shortest lived DNPs, the movement of the fuel does not have any significant impact upon the DNP distribution when compared to static fuel. This is reasonable since the precursors do not live for very long in this group, so they do not have much chance to travel. For the intermediate DNP group, there is a clear shift in the direction of the fuel flow, which causes more precursors to produce delayed neutrons in the less important piping  and upper plenum regions. The longest lived DNP group seems to be spread almost equally throughout the entire reactor, which means that those delayed neutrons are contributing significantly less to the overall neutron economy. This reduces the overall effective delayed neutron fraction since the delayed neutrons are in less important regions. This directly affects the controllability of the reactor through the reactor period, which is heavily dependent upon the delayed neutrons.
 
 \section{Depletion}
 
@@ -250,15 +250,73 @@ The molten salt breeder reactor (MSBR) is a useful design to analyze for several
    \label{fig:msbr_ryklev}
 \end{figure}
 
-For the online reprocessing aspect of the reactor, there are several mechanisms that contribute, as can be seen in Figure \ref{fig:msbr_robertson}. This figure shows how the reactor (1) links with the fuel salt pump (3), entrainment separator (14), and gas separator (13). The elements which are to be extracted, as well as their cycle times, are shown in Table \ref{tab:msbr_cycle_times}.
+Table \ref{tab:msbr_gen_data} has general information on the MSBR, while Table \ref{tab:msbr_salt_data} has specific information on the distribution of the fuel salt during operation. It can be seen in Table \ref{tab:msbr_gen_data} that the salt inventory cycle time is 10 days, which means that for the entire salt inventory to be cycled takes 10 days. However, the loop cycle time is 11 seconds \cite{robertson_conceptual_1971}.
+
+\begin{table}[H]
+\renewcommand{\arraystretch}{1.25}
+\caption{MSBR General Data \cite{robertson_conceptual_1971}}
+\label{tab:msbr_gen_data}
+\begin{center}
+\begin{tabular}{ | c | c | }
+ \hline
+ Component & Data\\
+ \hline
+ \hline
+ Thermal Capacity & 2250 MW$_{th}$\\
+ Vessel Inner Diameter & 6.77 m\\
+ Core Height & 3.96 m\\
+ Vessel Pressure & 0.52 MPa\\
+ Inner Salt Fraction & 0.13\\
+ Outer Salt Fraction & 0.37\\
+ Maximum Flow Velocity & 2.6 $\frac{m}{s}$\\
+ Fuel Salt (Vessel) & 30.4 m$^3$\\
+ Fuel Salt (Primary System) & 48.7 m$^3$\\
+ Thorium Inventory & 68,100 kg\\
+ Breeding Ratio & 1.06\\
+ Processing Rate & 1 gpm\\
+ Salt Inventory Cycle Time & 10 days\\
+ Salt Components & $\ce{^{7}LiF-BeF_{2}-ThF_{4}-UF_{4}} $\\
+ Salt Composition & 71.7-16-12-0.3 mole \% \\
+ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Table \ref{tab:msbr_salt_data} shows that the salt inventory in the core is approximately 19 m$^3$ due to each core zone. However, SaltProc uses the volume of the primary system for its calculation \cite{rykhlevskii_modeling_2019}. This is because the other parts of the MSBR outside of the core are not modeled, but the geometry implemented in Serpent2 uses the correct dimensions. This allows cross sections to remain as if the correct volume were implemented, but also allows the depletion results to be closer to the expected result if the fuel salt were fully utilized.
 
 
-\begin{figure}[H]
-  \centering
-\includegraphics[scale=0.45]{images/msbr_flows_robertson.PNG}
-  \caption{MSBR simplified flow diagram from \cite{robertson_conceptual_1971} showing part of primary side.}
-   \label{fig:msbr_robertson}
-\end{figure}
+\begin{table}[H]
+\renewcommand{\arraystretch}{1.25}
+\caption{MSBR Primary System Salt Inventory \cite{robertson_conceptual_1971}}
+\label{tab:msbr_salt_data}
+\begin{center}
+\begin{tabular}{ | c | c | }
+ \hline
+ Region & Volume [m$^3$]\\
+ \hline
+ \hline
+ Fuel Salt (Primary System) & 48.7\\
+ \hline
+ Reactor & -\\
+ Core Zone I & 8.2\\
+ Core Zone II & 10.8\\
+ Plenums, Inlets, Outlets & 6.2\\
+ Annulus & 3.8\\
+ Reflectors & 1.4\\
+ \hline
+ Primary Heat Exchangers & -\\
+ Tubes & 7.6\\
+ Inlets, Outlets & 0.8\\
+ \hline
+ Pump Bowls & 5.2\\
+ Piping (including drain line) & 4.1\\
+ Off-gas bypass loop & 0.3\\
+ Tank heels and miscellaneous & 0.3\\
+ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
 
 \begin{table}[H]
 \renewcommand{\arraystretch}{1.25}
@@ -278,23 +336,66 @@ For the online reprocessing aspect of the reactor, there are several mechanisms 
  Volatile Fluorides & Br, I & 60 days\\
  Discard & Rb, Sr, Cs, Ba & 3435 days\\
  Salt Discard & Th, Li, Be, F & 3435 days\\
- Protactinium & Pa (233) & 3 days\\
- Higher Nuclides & Np (237), Pu (242) & 16 years\\
+ Protactinium & Pa & 3 days\\
+ Higher Nuclides & Np, Pu & 16 years\\
  \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-From SaltProc's MSBR example, the removal of each group can be attributed to a particular process within the physical system \cite{rykhlevskii_modeling_2019}. The entrainment separator is used to remove the gases; a nickel mesh is used to remove noble metals, seminoble metals, and volatile fluorides; and various processes given by Robertson are lumped together into the liquid metal process which removes rare earths, discard, and protactinium \cite{robertson_conceptual_1971}. The higher nuclides are removed at such an infrequent rate that they are not included within the SaltProc processes. The MSBR design removes the protactinium with the intent that the protactinium-233 will not absorb neutrons and will instead be fed out of the core to decay into uranium-233, which can then be fed back into the core.
+
+%Pa233, Np237, Pu242
+
+Shown in Table \ref{tab:msbr_cycle_times} are the cycle times for different elements in the MSBR. According to Robertson et al, the protactinium and rare earth processing has the largest impact on neutronics and performance \cite{robertson_conceptual_1971}. 
+
+The fuel processing of the MSBR is defined to operate continuously with processing methods \cite{robertson_conceptual_1971}. For protactinium removal, fluorination is first used to remove uranium before protactinium isolation. Next is countercurrent bismuth with lithium and thorium for stripping any remaining uranium and the protactinium. This is followed by hydrofluorination to separate the uranium and protactinium. This process can be seen in Figure \ref{fig:msbr_pa}. For a 10 day protactinium cycle time, a fuel salt flow rate of 0.88 gallons per minute (gpm) is used. The processed salt is processed for rare earth fission products before being fed back into the reactor. 
+% Page 111 flow sheet
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.55]{images/msbr_pa_robertson.PNG}
+  \caption{MSBR protactinium processing scheme from Robertson et al \cite{robertson_conceptual_1971}.}
+   \label{fig:msbr_pa}
+\end{figure}
+
+Rare earth fission product removal is performed using the metal-transfer process, which uses lithium chloride and bismuth containing a reductant. More specifically, bismuth containing a reductant of thorium and lithium is used to strip the rare earth fission products from the fuel salt. The rare earth fission products are then transported to the lithium chloride acceptor salt, though lithium bromide or a mix of both could be used. Figure \ref{fig:msbr_re} shows this process, and Figure \ref{fig:msbr_re_pa} shows the protactinium and rare earth processing schemes together.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.65]{images/msbr_re_robertson.PNG}
+  \caption{MSBR rare earth processing scheme from Robertson et al \cite{robertson_conceptual_1971}.}
+   \label{fig:msbr_re}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.75]{images/msbr_flows_robertson.PNG}
+  \caption{Combined MSBR rare earth and protactinium processing schemes from Robertson et al \cite{robertson_conceptual_1971}.}
+   \label{fig:msbr_re_pa}
+\end{figure}
+
+To strip gaseous fission products, a bubble generator introduces sparging gas in 15 to 20 mil bubbles. 10 percent of the flow is redirected to the bypass loop which contains a gas separator. This gas separator strips the fission products with approximately 100 percent efficiency. The off-gas system also includes an approximately 2 hour holdup during which noble metals deposit on the fuelsalt drain tank surface. Figure \ref{fig:msbr_nm_pa} shows this process, beginning with the number per time, or flux, of the noble gasses in the salt migrating to the graphite voids and helium sparging bubbles. This is followed by the volume holdup into more processing to handle the noble metal fission product cleanup.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.65]{images/msbr_nm_robertson.PNG}
+  \caption{MSBR noble metal flux and off-gas system from Robertson et al \cite{robertson_conceptual_1971}.}
+   \label{fig:msbr_nm_pa}
+\end{figure}
+
+Periodic discard of salt at a rate of 0.1 cubic feet per day occurs due to buildup of non-volatile fluorides during fluorination accumulating in the decay tank, such as from zirconium and corrosion product nickel.
+
+%From SaltProc's MSBR example, the removal of each group can be attributed to a particular process within the physical system \cite{rykhlevskii_modeling_2019}. The entrainment separator is used to remove the gases; a nickel mesh is used to remove noble metals, seminoble metals, and volatile fluorides; and various processes given by Robertson are lumped together into the liquid metal process which removes rare earths, discard, and protactinium \cite{robertson_conceptual_1971}. The higher nuclides are removed at such an infrequent rate that they are not included within the SaltProc processes. The MSBR design removes the protactinium with the intent that the protactinium-233 will not absorb neutrons and will instead be fed out of the core to decay into uranium-233, which can then be fed back into the core.
 
 
 \section{MSR Modeling Approaches}
 
-For modeling of MSRs, there are generally two different models which are used. The first is a model which takes a given fuel composition and analyzes the performance of the reactor given that fuel composition. This may include focus on DNP movement \cite{fei_molten_2020, shi_gen-foam_2021} or reactor dynamics \cite{singh_plant-level_2020, cervi_development_2019, aufiero_development_2014}.
+For modeling of MSRs, there are generally two different models which are used. The first is a model which takes a given fuel composition and analyzes the performance of the reactor given that fuel composition. This may include focus on aspects such as DNP movement \cite{fei_molten_2020, shi_gen-foam_2021} or reactor dynamics \cite{singh_plant-level_2020, cervi_development_2019, aufiero_development_2014, cui_development_2022, singh_dynamics_2017}.
 
 The second type of model is one which depletes the fuel. Because the online reprocessing of an MSR has such large effects on its fuel composition, depletion models of MSRs typically incorporate online reprocessing. These models can also account for other factors, such as DNP movement, as shown by Zhou et al \cite{zhou_fuel_2018}. The movement of DNP can have a noticeable effect on reactor performance by affecting neutron energy spectra and distribution of delayed neutrons \cite{betzler_implementation_2017}. Most, however, focus primarily on depletion and do not consider the DNP movement during depletion, as can be seen in Table \ref{tab:codes_types}. In order to handle spatial dependence of fuel salt without modeling the piping of the core, models can use the scaled flux method \cite{betzler_liquid-fueled_2021}.
 
 For all of the continuous reprocessing models given in Table \ref{tab:codes_types}, all of them use the "fictitious decay constant" approach, which is shown in Equation \eqref{eq:Bateman_type_one_decay}. For the batchwise models, they typically use the approach shown in Equation \eqref{eq:batchwise_rem_eff} and remove a fraction at each depletion step rather than bulk removal at certain steps.
+
+The "Reprocessing" column of Table \ref{tab:codes_types} shows the mathematical approach taken to the online reprocessing of the work, and does not necessarily represent the reactor reprocessing approach. However, since online reprocessing is considered in the table, offline batchwise reprocessing is not included, such as in the work by Zou et al \cite{zou_transition_2020}.
 
 %For modeling of MSRs, there are typically three main types of models which are used. The first is a model which takes a fuel composition and runs without accounting for reprocessing, but accounts for the fuel movement effects, such as DNP drift, shown by Fei et al \cite{fei_molten_2020}. The second is a model which accounts for both fuel movement and reprocessing, such as Zhou et al \cite{zhou_fuel_2018}. The third is a model which does not account for fuel movement but accounts for reprocessing. Models which use the second or third approach are detailed in Table \ref{tab:codes_types}.
 
@@ -315,16 +416,18 @@ For all of the continuous reprocessing models given in Table \ref{tab:codes_type
  3 & Batchwise & Full 3D & MSBR & No & \cite{park_whole_2015}\\
  4 & Batchwise & Unit Cell & MSBR & No & \cite{betzler_molten_2017}\\
  \;\,4* & Continuous & Unit Cell & N/A & No & \cite{jr_vicente_valdez_modeling_2020}\\
- 5 & Batchwise & Inf Lattice & DMSR & No &  \cite{ahmad_neutronics_2015}\\
+ 5 & Batchwise & Unit Cell & DMSR & No &  \cite{ahmad_neutronics_2015}\\
  6 & Continuous & Full 3D & MSBR & Yes & \cite{zhou_fuel_2018}\\
  7 & Batchwise & Full 3D & MSBR & No & \cite{nuttin_potential_2005}\\
  8 & Batchwise & Full 3D & MOSART & No & \cite{sheu_depletion_2013}\\
- 9 & Continuous & Inf Lattice & ADNA & No & \cite{rodriguez-vieitez_transmutation_2002}\\
+ 9 & Continuous & Unit Cell & ADNA & No & \cite{rodriguez-vieitez_transmutation_2002}\\
  10 & Mixed & 2D Slice & MSFR & No & \cite{fiorina_preliminary_2012}\\
  11 & Continuous & Full 3D (?) & MSFR & No & \cite{zhuang_extended_2020}\\
  12 & Batchwise & Full 3D & Toy & No & \cite{ridley_method_2017}\\
  13 & Mixed & 2D Slice & N/A & Yes & \cite{h_f_bauman_rod_1971}\\
  14 & Mixed & Full 3D & TMSR & No & \cite{merle-lucotte_thorium_2007}\\
+ 15 & Mixed & Unit Cell & Toy & Yes & \cite{nagy_parametric_2008}\\
+ 16 & Continuous & Full 3D & N/A & No & \cite{xia_development_2019}\\
  \hline
 \end{tabular}
 \end{center}
@@ -334,7 +437,7 @@ The first entry in Table \ref{tab:codes_types} is SaltProc's MSBR example, which
 
 The second entry is by Aufiero et al, and displays the Serpent2 newly developed continuous reprocessing functionality. A full 3D simplified core layout of the molten salt fast reactor (MSFR) is used, and continuous reprocessing is used to operate the removal and feed processes. It evaluates the model at various scales, from steady state uranium concentrations at over 60 years to radiotoxicity over $10^8$ years. The step sizes vary as well, though not specifically mentioned, appearing very small at BOC and expanding to around 10 years at SS for one of the figures presented.
 
-The third entry by Park et al is very similar to the MSBR example in SaltProc, with the primary difference being MCNP6 is used for transportation calculations instead of Serpent2. The depletion was performed using CINDER90 and custom Python scripts. Another difference is that SaltProc uses adjusted values for the removal efficiency rates of xenon, krypton, and protactinium, while the work by Park et al uses the cycle time values from Robertson \cite{robertson_conceptual_1971}. This model uses 3 day time steps and models the fuel composition over 20 years.
+The third entry by Park et al is very similar to the MSBR example in SaltProc, with the primary difference being MCNP6 is used for transportation calculations instead of Serpent2. The depletion was performed using CINDER90 and custom Python scripts. Another difference is that SaltProc uses adjusted values for the removal efficiency rates of xenon, krypton, and protactinium, while the work by Park et al uses the cycle time values from Robertson et al \cite{robertson_conceptual_1971}. This model uses 3 day time steps and models the fuel composition over 20 years.
 
 The fourth entry is for ChemTriton, a tool designed for SCALE to perform online reprocessing of MSRs. It contains work on multiple reactors, such as the MSBR and the MSRE. The tool iteratively runs SCALE/TRITON over small time steps to simulate continuous reprocessing. For the MSBR case, 3 day time steps are used, similar to SaltProc and Park et al. The reason for not using shorter time steps is that using shorter time steps increases computational cost while also providing very little improvements to calculated eigenvalue and fuel cycle metrics, discussed by Betzler et al as well as by Powers et al \cite{powers_new_2013}.
 
@@ -359,4 +462,9 @@ The twelfth entry by Ridley and Chvala use batchwise reprocessing on a toy MSR u
 The thirteenth entry is on the Reactor Optimum Design (ROD) code, which allows users to use continuous or batchwise reprocessing for the MSR model. ROD operates by taking a one or two dimensional input and determining the equilibrium fuel composition. This is a useful code for determining a prediction of a model, but is less precise than more modern codes which offer more detailed geometry and other features.
 
 The fourteenth entry by Merle-Lucotte et al covers depletion of the Thorium Molten Salt Reactor (TMSR) using MCNP4 \cite{goluoglu_software_1998} for transport and REM for material evolution. Continuous reprocessing is used for gaseous fission product extraction, while the other fission products are processed with batchwise reprocessing.
+
+The fifteenth entry by Nagy et al uses a toy model to go through different reprocessing schemes based on the MSBR and MOSART reprocessing designs \cite{robertson_conceptual_1971, ignatiev_progress_2007}. SCALE-5 \cite{noauthor_scale_2005} is used for neutron transport and ORIGEN-S is used for depletion. To account for DNPs, the authors make a few approximation which lead to reducing the calculated eigenvalues by 90 pcm. Depeletion steps are performed every 5 days, during which continuous reprocessing was implemented for either only gaseous fission product removal or more, depending on the reprocessing scheme chosen. Additionally, the batchwise reprocessing was performed by altering the binary output of ORIGEN, as is performed for the feed fuel and more, depending on the reprocessing scheme chosen.
+
+The sixteenth entry by Xia et al demonstrates the MOlten salt reactor specific DEpletion Code (MODEC). This code uses continuous reprocessing, and has been used to analyze the Molten Chloride salt Fast Reactor (MCFR) by Liaoyuan et al \cite{liaoyuan_th-u_2021}. The MCFR analysis uses SCALE6.1 for transport and MODEC for depletion. 
+
 
